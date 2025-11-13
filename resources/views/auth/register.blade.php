@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -32,10 +32,17 @@
             flex-direction: column;
         }
 
-        /* LAPTOP: Card lebih kecil & di tengah */
+.btn-register {
+            color: #fff;
+        }
+.btn-register i {
+    color: #fff; /* ✅ pastikan ikon juga putih */
+}
+
+        /* LAPTOP: Landscape & Card lebih kecil */
         @media (min-width: 768px) {
             .login-container {
-                max-width: 750px; /* Lebih kecil dari sebelumnya */
+                max-width: 750px;
             }
             .login-card {
                 flex-direction: row;
@@ -58,7 +65,7 @@
                 align-items: center;
                 text-align: center;
                 border-radius: 0 20px 20px 0;
-                flex: 0 0 280px; /* Lebar tetap */
+                flex: 0 0 280px;
             }
             .login-right i {
                 font-size: 3rem;
@@ -74,7 +81,7 @@
             }
         }
 
-        /* HP: TETAP SAMA, TIDAK DIUBAH */
+        /* HP: Portrait (Sama seperti login) */
         @media (max-width: 767px) {
             .login-right {
                 background: #0074CC;
@@ -118,7 +125,7 @@
             background: #e9ecef;
         }
 
-        .btn-login {
+        .btn-register {
             background: #0074CC;
             border: none;
             border-radius: 12px;
@@ -127,7 +134,7 @@
             font-size: 1rem;
         }
 
-        .btn-login:hover {
+        .btn-register:hover {
             background: #0A6ABF;
         }
 
@@ -142,20 +149,6 @@
             text-decoration: underline;
             color: #003d73;
         }
-
-        .link-group {
-            display: flex;
-            justify-content: space-between;
-            margin: 1rem 0;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .link-group a {
-            flex: 1;
-            text-align: center;
-            min-width: 120px;
-        }
     </style>
 </head>
 <body>
@@ -164,23 +157,28 @@
 
             <!-- BAGIAN KIRI: FORM -->
             <div class="login-left">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fas fa-check-circle"></i> {{ session('success') }}
-                        
-                    </div>
-                @endif
+               
 
-                <form action="{{ route('login') }}" method="POST">
+                <form action="{{ route('register') }}" method="POST">
                     @csrf
+
+                    <!-- Nama Lengkap -->
+                    <div class="mb-3">
+                        <label class="form-label">Nama</label>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                               value="{{ old('name') }}" placeholder="Masukan nama anda"required>
+                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <!-- Username -->
                     <div class="mb-3">
                         <label class="form-label">Username</label>
                         <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
-                               value="{{ old('username') }}" autofocus placeholder="Masukan username anda" required>
+                               value="{{ old('username') }}" placeholder="Masukan username anda" required>
                         @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <!-- PASSWORD DENGAN IKON MATA -->
+                    <!-- Password + Mata -->
                     <div class="mb-3">
                         <label class="form-label">Password</label>
                         <div class="input-group">
@@ -192,35 +190,42 @@
                         </div>
                     </div>
 
-                    
-
-                    <!-- Link: Lupa Password & Daftar (Sejajar) -->
-                    <div class="link-group">
-                        <a href="{{ route('forgot.show') }}" class="text-link">
-                            <i class="fas fa-question-circle"></i> Forgot Password?
-                        </a>
-                        <a href="{{ route('register') }}" class="text-link">
-                            <i class="fas fa-user-plus"></i> Register as Crew
-                        </a>
+                    <!-- Konfirmasi Password + Mata -->
+                    <div class="mb-3">
+                        <label class="form-label">Konfirmasi Password</label>
+                        <div class="input-group">
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Ulangi password anda" required>
+                            <button type="button" class="btn btn-outline-secondary" id="toggleConfirm">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login w-100">
-                        <i class="fas fa-sign-in-alt"></i> Masuk
+                    <!-- Tombol Daftar -->
+                    <button type="submit" class="btn btn-register w-100">
+                        <i class="fas fa-user-plus"></i> Daftar
                     </button>
+
+                    <!-- Kembali ke Login -->
+                    <div class="text-center mt-3">
+                        <small>Sudah punya akun?
+                            <a href="{{ route('login') }}" class="text-link">Login di sini</a>
+                        </small>
+                    </div>
                 </form>
             </div>
 
             <!-- BAGIAN KANAN: BRANDING -->
             <div class="login-right">
                 <i class="fas fa-ship"></i>
-                <h4>CrewKapal</h4>
+                 <h4>CrewKapal</h4>
                 <p>Sistem Manajemen Task dan Laporan Crew Kapal</p>
             </div>
 
         </div>
     </div>
 
-    <!-- JavaScript untuk Toggle Password -->
+    <!-- JavaScript: Toggle Password & Konfirmasi -->
     <script>
         document.getElementById('togglePassword').addEventListener('click', function () {
             const password = document.getElementById('password');
@@ -231,6 +236,20 @@
                 icon.classList.add('fa-eye-slash');
             } else {
                 password.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('toggleConfirm').addEventListener('click', function () {
+            const confirm = document.getElementById('password_confirmation');
+            const icon = this.querySelector('i');
+            if (confirm.type === 'password') {
+                confirm.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                confirm.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
             }

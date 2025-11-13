@@ -1,14 +1,12 @@
 @extends('master')
 
-@section('title', 'Tambah User - Kapal App')
+@section('title', 'Tambah User')
 
 @section('content')
-<div class="container mt-3">
-
- 
+<div class="container mt-2">
         <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Tambah User Baru</h3>
+            <div class="card-header" style="background-color: #0074CC;">
+                <h3 class="card-title"><i class="fas fa-user-plus mr-2"></i>Form Tambah User Baru</h3>
             </div>
 
             <form action="{{ route('user.store') }}" method="POST">
@@ -38,7 +36,7 @@
                     <div class="form-group">
                         <label for="name">Nama <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror"
-                               value="{{ old('name') }}" placeholder="Masukkan nama lengkap" required>
+                               value="{{ old('name') }}" placeholder="Masukkan nama" required>
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -59,7 +57,7 @@
     <label>Password <span class="text-danger">*</span></label>
     <div class="input-group">
         <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror"
-               placeholder="Minimal 6 karakter" required>
+               placeholder="Minimal 8 karakter" required>
         <div class="input-group-append">
             <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                 <i class="fas fa-eye"></i>
@@ -96,12 +94,12 @@
                     </div>
                 </div>
 
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Simpan User
+                <div class="card-footer" style="background-color: #ffffff;">
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="fas fa-save"></i> Simpan
                     </button>
-                    <a href="{{ route('user.create') }}" class="btn btn-secondary">
-                        <i class="fas fa-sync"></i> Reset Form
+                    <a href="{{ route('user.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo"></i> Kembali
                     </a>
                 </div>
             </form>

@@ -7,6 +7,7 @@ use App\Models\DetailTask;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class TaskController extends Controller
@@ -16,21 +17,31 @@ public function index(Request $request)
 {
     $query = Task::with(['detailTasks.user']);
 
-    // Pencarian
-    if ($search = $request->get('search')) {
-        $query->where('judul', 'like', "%{$search}%");
+    // Filter User (Crew)
+    if ($userId = $request->get('user_id')) {
+        $query->whereHas('detailTasks', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        });
     }
 
-    // Filter status
+    // Filter Status
     if ($status = $request->get('status')) {
         $query->where('status', $status);
     }
 
-    $tasks = $query->latest()->paginate(10)->appends($request->query());
+    // Filter Daterange (format: DD/MM/YYYY - DD/MM/YYYY)
+    if ($daterange = $request->get('daterange')) {
+        if (preg_match('/(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/', $daterange, $matches)) {
+            $start = \Carbon\Carbon::createFromFormat('d/m/Y', $matches[1])->startOfDay();
+            $end = \Carbon\Carbon::createFromFormat('d/m/Y', $matches[2])->endOfDay();
+            $query->whereBetween('tanggal_mulai', [$start, $end]);
+        }
+    }
+
+    $tasks = $query->latest()->paginate(500)->appends($request->query());
 
     return view('task.index', compact('tasks'));
 }
-
     public function create()
     {
         $crewUsers = User::where('role', 'crew')->pluck('name', 'id');
@@ -52,7 +63,7 @@ public function index(Request $request)
         'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
         'deadline.after_or_equal' => 'Deadline harus setelah atau sama dengan tanggal mulai.',
         'allcrew.required' => 'Pilih opsi crew.',
-        'crew_ids.required_if' => 'Pilih minimal satu crew.',
+        'crew_ids.required_if' => 'Pilih minimal satu crew atau tekan tombol tambah terlebih dahulu.',
     ]);
 
     DB::beginTransaction();
@@ -171,4 +182,117 @@ public function destroy(Task $task)
             return back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
+
+
+public function myTasks(Request $request)
+{
+    $userId = Auth::id();
+
+    $query = Task::with(['detailTasks.user'])
+        ->where(function ($q) use ($userId) {
+            // Task allcrew = ya
+            $q->where('allcrew', 'ya')
+              // ATAU task yang ada di detail_tasks milik user
+              ->orWhereHas('detailTasks', function ($sub) use ($userId) {
+                  $sub->where('user_id', $userId);
+              });
+        });
+
+    // Pencarian judul
+    if ($search = $request->get('search')) {
+        $query->where('judul', 'like', "%{$search}%");
+    }
+
+    // Filter status
+    if ($status = $request->get('status')) {
+        $query->where('status', $status);
+    }
+
+     // Filter Daterange (format: DD/MM/YYYY - DD/MM/YYYY)
+    if ($daterange = $request->get('daterange')) {
+        if (preg_match('/(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/', $daterange, $matches)) {
+            $start = \Carbon\Carbon::createFromFormat('d/m/Y', $matches[1])->startOfDay();
+            $end = \Carbon\Carbon::createFromFormat('d/m/Y', $matches[2])->endOfDay();
+            $query->whereBetween('tanggal_mulai', [$start, $end]);
+        }
+    }
+
+    $tasks = $query->latest('tanggal_mulai')
+                   ->paginate(10)
+                   ->appends($request->query());
+
+    return view('task.individu', compact('tasks'));
+}
+
+
+public function start(Task $task)
+{
+    // Cek status
+    if ($task->status !== 'belum') {
+        return back()->with('error', 'Task sudah dimulai atau selesai.');
+    }
+
+    // Cek hak akses
+    if ($task->allcrew === 'tidak') {
+        $hasAccess = $task->detailTasks()->where('user_id', Auth::id())->exists();
+        if (!$hasAccess) {
+            return back()->with('error', 'Anda tidak ditugaskan pada task ini.');
+        }
+    }
+
+    $task->update([
+        'status' => 'proses',
+        'tanggal_dikerjakan' => now(),
+    ]);
+
+    return back()->with('success', 'Task berhasil dimulai!');
+}
+
+public function finish(Task $task)
+{
+    // Cek status
+    if ($task->status !== 'proses') {
+        return back()->with('error', 'Task belum dimulai atau sudah selesai.');
+    }
+
+    // Cek hak akses
+    if ($task->allcrew === 'tidak') {
+        $hasAccess = $task->detailTasks()->where('user_id', Auth::id())->exists();
+        if (!$hasAccess) {
+            return back()->with('error', 'Anda tidak ditugaskan pada task ini.');
+        }
+    }
+
+    $task->update([
+        'status' => 'selesai',
+        'tanggal_selesai' => now(),
+    ]);
+
+    return back()->with('success', 'Task berhasil diselesaikan!');
+}
+
+
+
+public function cancel(Task $task)
+{
+    // Cek status
+    if ($task->status !== 'proses') {
+        return back()->with('error', 'Task tidak sedang dalam proses.');
+    }
+
+    // Cek hak akses
+    if ($task->allcrew === 'tidak') {
+        $hasAccess = $task->detailTasks()->where('user_id', Auth::id())->exists();
+        if (!$hasAccess) {
+            return back()->with('error', 'Anda tidak ditugaskan pada task ini.');
+        }
+    }
+
+    $task->update([
+        'status' => 'belum',
+        'tanggal_dikerjakan' => null, // reset
+    ]);
+
+    return back()->with('success', 'Task dibatalkan dan kembali ke status Belum.');
+}
 }

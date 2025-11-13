@@ -1,67 +1,71 @@
 @extends('master')
 
-@section('title', 'Laporan Hazard')
+@section('title', 'Laporan Hazard Saya')
 
 @section('content')
-<style>
-     @media (min-width: 992px) {
-        .col-lg-1-5 {
-            flex: 0 0 12.5%;
-            max-width: 12.5%;
-        }
-    }
-</style>
 <div class="container mt-2">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-exclamation-triangle mr-1" style="color: #0074CC;"></i>
-                        Daftar Laporan Hazard
-                    </h3>
-                   
-                </div>
+    @if(session('success'))
+<div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    {{ session('success') }}
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if($errors->any())
+<div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <ul class="mb-0">
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <h3 class="card-title mb-0 mr-auto">
+                    <i class="fas fa-exclamation-triangle mr-1" style="color: #0074CC;"></i>Laporan Hazard Saya
+                </h3>
+                <a href="{{ route('hazard.create') }}" class="btn-sm" style="background-color: #0074CC; color: #ffffff;" >
+                    <i class="fas fa-plus-circle mr-2" style="color: #ffffff;"></i>Tambah
+                </a>
+            </div>
 
                 <!-- Filter & Search -->
 <div class="card-body border-bottom">
-    <form method="GET" action="{{ route('hazard.index') }}" id="filterForm">
-        <div class="row g-2 align-items-end">
-             <div class="col-12 col-lg-3">
+    <form method="GET" action="{{ route('hazard.my') }}" id="filterForm">
+        <div class="row g-3">
+            <!-- Cari Judul: Laptop 4, HP 12 -->
+            <div class="col-12 col-md-4">
                 <input type="text" name="search" class="form-control" placeholder="Cari judul..."
                        value="{{ request('search') }}">
             </div>
-             <div class="col-12 col-lg-3">
+
+            <!-- Tanggal: Laptop 4, HP 12 -->
+            <div class="col-12 col-md-4">
                 <input type="date" name="tanggal" class="form-control" value="{{ request('tanggal') }}">
             </div>
-            <!-- TAMBAHAN: Dropdown Crew -->
-             <div class="col-12 col-lg-3">
-                <select name="user_id" class="form-control">
-                    <option value="">Semua Crew</option>
-                    @foreach(\App\Models\User::where('role', 'crew')->orderBy('name')->get() as $user)
-                        <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                            {{ $user->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <!-- Tombol tetap -->
-            <div class="col-6 col-lg-1-5">
+
+            <!-- Tombol Cari: Laptop 2, HP 6 -->
+            <div class="col-6 col-md-2">
                 <button type="submit" class="btn btn-outline-primary w-100">
                     <i class="fas fa-search"></i> Cari
                 </button>
-                </div>
-
-                <div class="col-6 col-lg-1-5">
-                <a href="{{ route('hazard.index') }}" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-sync"></i> Reset
-                </a>
             </div>
-        
+
+            <!-- Tombol Reset: Laptop 2, HP 6 -->
+            <div class="col-6 col-md-2">
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='{{ route('hazard.my') }}'">
+                    <i class="fas fa-sync"></i> Reset
+                </button>
+            </div>
         </div>
     </form>
 </div>
-
                 <!-- Tabel -->
                 <div class="card-body table-responsive p-0">
                     @if($hazards->count() > 0)
@@ -70,10 +74,9 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tanggal Pelaporan</th>
-                                    <th>Pelapor</th>
                                     <th>Judul Pelaporan</th>
                                     <th>Deskripsi Pelaporan</th>
-                                    
+                                    <th width="12%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,15 +87,26 @@
                                             {{ \Carbon\Carbon::parse($hazard->tanggal_laporan)->format('d M Y H:i') }}
                                         </td>
                                         <td>
-                                            <span class="badge bg-info">{{ $hazard->user->name }}</span>
-                                        </td>
-                                        <td>
                                             {{ $hazard->judul_laporan ?: 'Tanpa judul' }}
                                         </td>
-                                        <td>
-                                             {{ $hazard->deskripsi_laporan ?: 'Tanpa deskripsi' }}
+                                       <td>
+                                            {{ $hazard->deskripsi_laporan ?: 'Tanpa Deskripsi' }}
                                         </td>
-                                       
+                                        <td>
+                                            <div>
+                                                <!-- Selalu tampil karena pasti milik sendiri -->
+                                                <a href="{{ route('hazard.edit', $hazard) }}"
+                                                   class="btn btn-warning btn-sm" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ $hazard->id }}"
+                                                        title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
 
                                     <!-- Modal Hapus -->
@@ -129,15 +143,17 @@
                     @else
                         <div class="text-center py-5">
                             <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Belum ada laporan hazard.</p>
-                            
+                            <p class="text-muted">Belum ada laporan hazard dari Anda.</p>
+                            <a href="{{ route('hazard.create') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Lapor Sekarang
+                            </a>
                         </div>
                     @endif
                 </div>
 
                 <!-- Paginasi -->
                 @if($hazards->hasPages())
-                     <div class="d-flex justify-content-end mt-3">
+                    <div class="card-footer d-flex justify-content-end">
                         {{ $hazards->appends(request()->query())->links('pagination::bootstrap-5') }}
                     </div>
                 @endif

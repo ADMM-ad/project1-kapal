@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException; // TAMBAHKAN INI
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -30,7 +32,7 @@ class UserController extends Controller
 
     // Paginasi
     $users = $query->select('id', 'name', 'username', 'role', 'created_at')
-                   ->paginate(2)
+                   ->paginate(100)
                    ->appends($request->query());
 
     return view('user.index', compact('users', 'sort'));
@@ -113,6 +115,38 @@ public function login(Request $request)
     ]);
 }
 
+public function showRegister()
+{
+    return view('auth.register');
+}
+
+public function register(Request $request)
+{
+    $request->validate([
+        'name'     => 'required|string|max:30',
+        'username' => 'required|string|max:30|unique:users,username',
+        'password' => 'required|string|min:8|confirmed',
+    ], [
+        'name.required'     => 'Nama wajib diisi.',
+        'name.max'          => 'Nama maksimal 30 karakter.',
+        'username.required' => 'Username wajib diisi.',
+        'username.max'      => 'Username maksimal 30 karakter.',
+        'username.unique'   => 'Username sudah digunakan.',
+        'password.min'      => 'Password minimal 8 karakter.',
+        'password.confirmed'=> 'Konfirmasi password tidak cocok.',
+    ]);
+
+    User::create([
+        'name'     => $request->name,
+        'username' => $request->username,
+        'password' => Hash::make($request->password),
+        'role'     => 'crew', // OTOMATIS crew
+    ]);
+
+    return redirect()->route('login')
+                     ->with('success', 'Akun berhasil dibuat! Silakan login.');
+}
+
 public function logout(Request $request)
 {
     Auth::logout();
@@ -121,4 +155,79 @@ public function logout(Request $request)
 
     return redirect()->route('login');
 }
+
+public function showProfile()
+{
+    $user = Auth::user();
+    return view('user.profile', compact('user'));
+}
+
+public function editProfile()
+{
+    $user = Auth::user();
+    return view('user.edit', compact('user'));
+}
+
+public function updateProfile(Request $request)
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'name'     => 'required|string|max:30',
+        'username' => [
+            'required',
+            'string',
+            'max:30',
+            Rule::unique('users')->ignore($user->id), // izinkan username sendiri
+        ],
+        'password' => 'nullable|string|min:8|confirmed', // nullable agar bisa kosong
+    ], [
+        'name.required'     => 'Nama wajib diisi.',
+        'name.max'          => 'Nama maksimal 30 karakter.',
+        'username.required' => 'Username wajib diisi.',
+        'username.max'      => 'Username maksimal 30 karakter.',
+        'username.unique'   => 'Username sudah digunakan.',
+        'password.min'      => 'Password minimal 8 karakter.',
+        'password.confirmed'=> 'Konfirmasi password tidak cocok.',
+    ]);
+
+    $data = [
+        'name'     => $request->name,
+        'username' => $request->username,
+    ];
+
+    // Hanya update password jika diisi
+    if ($request->filled('password')) {
+        $data['password'] = Hash::make($request->password);
+    }
+
+    $user->update($data);
+
+    return redirect()->route('profile.show')
+                     ->with('success', 'Profil berhasil diperbarui!');
+}
+
+public function showForgot()
+{
+    return view('auth.forgot');
+}
+
+public function forgot(Request $request)
+{
+    $request->validate([
+        'username' => 'required|exists:users,username',
+        'password' => 'required|min:8|confirmed',
+    ], [
+        'username.exists' => 'Username tidak ditemukan.',
+        'password.min' => 'Password minimal 8 karakter.',
+        'password.confirmed' => 'Konfirmasi password tidak cocok.',
+    ]);
+
+    $user = User::where('username', $request->username)->first();
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    return redirect()->route('login')->with('success', 'Password berhasil diubah. Silakan login ulang.');
+}
+
 }

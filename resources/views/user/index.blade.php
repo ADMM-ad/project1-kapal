@@ -1,48 +1,57 @@
 @extends('master')
 
-@section('title', 'User Management - Kapal App')
+@section('title', 'User Management')
 
 @section('content')
-<div class="container mt-3">
-    <div class="row">
-        <div class="col-12">
-            <!-- Card -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-robot mr-1" style="color:#00518d;"></i>User Management
-                    </h3>
-                    <a href="{{ route('user.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Tambah User
-                    </a>
-                </div>
+<div class="container mt-2">
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <h3 class="card-title mb-0 mr-auto">
+                    <i class="fas fa-users mr-1" style="color: #0074CC;"></i>User Management
+                </h3>
+                <a href="{{ route('user.create') }}" class="btn-sm" style="background-color: #0074CC; color: #ffffff;" >
+                    <i class="fas fa-plus-circle mr-2" style="color: #ffffff;"></i>Tambah
+                </a>
+            </div>
 
                 <!-- Filter & Search -->
                 <div class="card-body border-bottom">
-                    <form method="GET" action="{{ route('user.index') }}" id="filterForm">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <input type="text" name="search" class="form-control" placeholder="Cari nama..."
-                                       value="{{ request('search') }}">
-                            </div>
-                            <div class="col-md-3">
-                                <select name="role" class="form-control">
-                                    <option value="">Semua Role</option>
-                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="crew" {{ request('role') == 'crew' ? 'selected' : '' }}>Crew</option>
-                                </select>
-                            </div>
-                            <div class="col-md-5 d-flex gap-2">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-search"></i> Cari
-                                </button>
-                                <a href="{{ route('user.index') }}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-sync"></i> Reset
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <form method="GET" action="{{ route('user.index') }}" id="filterForm">
+        <div class="row g-2 align-items-center">
+            <!-- Input Cari -->
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <input type="text" name="search" class="form-control" placeholder="Cari nama..."
+                       value="{{ request('search') }}">
+            </div>
+
+            <!-- Dropdown Role (disamakan tinggi dengan input) -->
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <select name="role" class="form-select form-select-sm" style="height: 38px;">
+                    <option value="">Semua Role</option>
+                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="crew" {{ request('role') == 'crew' ? 'selected' : '' }}>Crew</option>
+                </select>
+            </div>
+
+            <!-- Tombol Cari -->
+            <div class="col-lg-2 col-md-2 col-sm-6 d-grid">
+                <button type="submit" class="btn btn-outline-primary" style="height: 38px;">
+                    <i class="fas fa-search"></i> Cari
+                </button>
+            </div>
+
+            <!-- Tombol Reset -->
+            <div class="col-lg-2 col-md-2 col-sm-6 d-grid">
+                <a href="{{ route('user.index') }}" class="btn btn-outline-secondary" style="height: 38px;">
+                    <i class="fas fa-sync"></i> Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
 
                 <!-- Tabel -->
                 <div class="card-body table-responsive p-0">
@@ -50,7 +59,7 @@
                         <table class="table table-hover table-bordered text-nowrap mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="5%">#</th>
+                                    <th>No</th>
                                     <th>
                                         Nama
                                         <a href="{{ route('user.index', array_merge(request()->query(), ['sort' => $sort == 'asc' ? 'desc' : 'asc'])) }}"
@@ -61,7 +70,7 @@
                                     <th>Username</th>
                                     <th>Role</th>
                                     <th>Dibuat</th>
-                                    <th width="10%">Aksi</th>
+                                    <th width="5%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,7 +80,7 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->username }}</td>
                                         <td>
-                                            <span class="badge bg-{{ $user->role == 'admin' ? 'danger' : 'info' }}">
+                                            <span class="badge bg-{{ $user->role == 'admin' ? 'warning' : 'info' }}">
                                                 {{ ucfirst($user->role) }}
                                             </span>
                                         </td>
@@ -81,7 +90,7 @@
                                                     class="btn btn-danger btn-sm"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteModal{{ $user->id }}">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </td>
                                     </tr>

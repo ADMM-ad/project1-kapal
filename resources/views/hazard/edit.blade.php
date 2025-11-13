@@ -3,16 +3,12 @@
 @section('title', 'Edit Laporan Hazard - Kapal App')
 
 @section('content')
-<div class="container-fluid mt-3">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-warning">
-                <div class="card-header bg-warning text-dark">
-                    <h3 class="card-title">
-                        <i class="fas fa-edit mr-1"></i>
-                        Edit Laporan Hazard
-                    </h3>
-                </div>
+
+<div class="container mt-2">
+    <div class="card card-primary">
+        <div class="card-header" style="background-color: #0074CC;">
+            <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Form Edit Hazard</h3>
+        </div>
 
                 <form action="{{ route('hazard.update', $hazard) }}" method="POST">
                     @csrf
@@ -62,17 +58,16 @@
                         </div>
                     </div>
 
-                    <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-save"></i> Update Laporan
+                    <div class="card-footer" style="background-color: #ffffff;">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-save"></i> Simpan
                         </button>
-                        <a href="{{ route('hazard.create') }}" class="btn btn-secondary">
+                        <a href="{{ route('hazard.my') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                     </div>
                 </form>
-            </div>
-        </div>
+            
     </div>
 </div>
 @endsection

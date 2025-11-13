@@ -12,7 +12,7 @@ class HazardController extends Controller
 
     public function index(Request $request)
 {
-    $query = Hazard::with('user')->select('id', 'user_id', 'tanggal_laporan', 'judul_laporan', 'created_at');
+    $query = Hazard::with('user')->select('id', 'user_id', 'tanggal_laporan', 'judul_laporan', 'deskripsi_laporan');
 
     // Pencarian judul
     if ($search = $request->get('search')) {
@@ -24,8 +24,14 @@ class HazardController extends Controller
         $query->whereDate('tanggal_laporan', $date);
     }
 
-    $hazards = $query->latest()->paginate(10)->appends($request->query());
+    // TAMBAHAN: Filter User (Crew)
+    if ($userId = $request->get('user_id')) {
+        $query->where('user_id', $userId);
+    }
 
+    $hazards = $query->orderBy('tanggal_laporan', 'desc')
+                     ->paginate(500)
+                     ->appends($request->query());
     return view('hazard.index', compact('hazards'));
 }
     public function create()
@@ -82,12 +88,12 @@ public function update(Request $request, Hazard $hazard)
     ]);
 
     $hazard->update([
-        'tanggalTIMESTAMP' => $request->tanggal_laporan,
+        'tanggal_laporan' => $request->tanggal_laporan,
         'judul_laporan' => $request->judul_laporan,
         'deskripsi_laporan' => $request->deskripsi_laporan,
     ]);
 
-    return redirect()->route('hazard.create')
+    return redirect()->route('hazard.my')
                      ->with('success', 'Laporan hazard berhasil diperbarui!');
 }
 public function destroy(Hazard $hazard)
@@ -98,7 +104,32 @@ public function destroy(Hazard $hazard)
 
     $hazard->delete();
 
-    return redirect()->route('hazard.index')
+    return redirect()->route('hazard.my')
                      ->with('success', 'Laporan hazard berhasil dihapus!');
+}
+
+public function myHazards(Request $request)
+{
+    $userId = Auth::id();
+
+    $query = Hazard::with('user')
+        ->where('user_id', $userId) // HANYA milik user login
+        ->select('id', 'user_id', 'tanggal_laporan', 'judul_laporan', 'deskripsi_laporan');
+
+    // Pencarian judul
+    if ($search = $request->get('search')) {
+        $query->where('judul_laporan', 'like', "%{$search}%");
+    }
+
+    // Filter tanggal
+    if ($date = $request->get('tanggal')) {
+        $query->whereDate('tanggal_laporan', $date);
+    }
+
+    $hazards = $query->orderBy('tanggal_laporan', 'desc')
+                     ->paginate(100)
+                     ->appends($request->query());
+
+    return view('hazard.individu', compact('hazards'));
 }
 }

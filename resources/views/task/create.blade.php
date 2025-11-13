@@ -1,131 +1,132 @@
 @extends('master')
 
-@section('title', 'Buat Task Baru - Kapal App')
+@section('title', 'Tambah Task')
 
 @section('content')
-<div class="container mt-3">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-tasks mr-1"></i> Buat Task Baru
-                    </h3>
+<div class="container mt-2">
+    <div class="card card-primary">
+        <div class="card-header" style="background-color: #0074CC;">
+            <h3 class="card-title"><i class="fas fa-tasks mr-2"></i>Form Tambah Task Baru</h3>
+        </div>
+
+        <form action="{{ route('task.store') }}" method="POST">
+            @csrf
+
+            <div class="card-body">
+                <!-- Notifikasi -->
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                        <button type="button" class="close" onclick="this.parentElement.remove();">x</button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-times-circle mr-2"></i>{{ session('error') }}
+                        <button type="button" class="close" onclick="this.parentElement.remove();">x</button>
+                    </div>
+                @endif
+
+                <!-- Judul -->
+                <div class="form-group">
+                    <label>Judul Task <span class="text-danger">*</span></label>
+                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror"
+                           value="{{ old('judul') }}" placeholder="Masukkan judul pekerjaan" required>
+                    @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
-                <form action="{{ route('task.store') }}" method="POST">
-                    @csrf
-                    <div class="card-body">
-                        <!-- Notifikasi -->
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show">
-                                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-                                <button type="button" class="close" onclick="this.parentElement.remove();">×</button>
-                            </div>
-                        @endif
-                        @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show">
-                                <i class="fas fa-times-circle mr-2"></i>{{ session('error') }}
-                                <button type="button" class="close" onclick="this.parentElement.remove();">×</button>
-                            </div>
-                        @endif
+                <!-- Deskripsi -->
+                <div class="form-group">
+                    <label>Deskripsi Task</label>
+                    <textarea name="deskripsi" class="form-control" rows="3" placeholder="Masukkan penjelasan pekerjaan baru">{{ old('deskripsi') }}</textarea>
+                </div>
 
-                        <!-- Judul -->
-                        <div class="form-group">
-                            <label>Judul Task <span class="text-danger">*</span></label>
-                            <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror"
-                                   value="{{ old('judul') }}" required>
-                            @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <!-- Deskripsi -->
-                        <div class="form-group">
-                            <label>Deskripsi</label>
-                            <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi') }}</textarea>
-                        </div>
-
-                        <!-- Tanggal Mulai (default: sekarang) -->
+                <!-- Tanggal Mulai & Deadline (6+6 di laptop, 12+12 di HP) -->
+                <div class="row">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             <label>Tanggal Mulai <span class="text-danger">*</span></label>
                             <input type="datetime-local" name="tanggal_mulai" class="form-control @error('tanggal_mulai') is-invalid @enderror"
                                    value="{{ old('tanggal_mulai', now()->format('Y-m-d\TH:i')) }}" required>
                             @error('tanggal_mulai') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-
-                        <!-- Deadline -->
+                    </div>
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             <label>Deadline</label>
                             <input type="datetime-local" name="deadline" class="form-control @error('deadline') is-invalid @enderror"
                                    value="{{ old('deadline') }}">
                             @error('deadline') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Pilihan Crew -->
-                        <div class="form-group">
-                            <label>Pilih Crew <span class="text-danger">*</span></label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="allcrew" value="ya" id="allcrew_ya"
-                                           {{ old('allcrew', 'ya') === 'ya' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="allcrew_ya">Semua Crew</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="allcrew" value="tidak" id="allcrew_tidak"
-                                           {{ old('allcrew') === 'tidak' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="allcrew_tidak">Pilih Crew</label>
-                                </div>
-                            </div>
-                            @error('allcrew') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                <!-- Pilihan Crew -->
+                <div class="form-group">
+                    <label>Pilih Crew <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="allcrew" value="ya" id="allcrew_ya"
+                                   {{ old('allcrew', 'ya') === 'ya' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="allcrew_ya">Semua Crew</label>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="allcrew" value="tidak" id="allcrew_tidak"
+                                   {{ old('allcrew') === 'tidak' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="allcrew_tidak">Pilih Crew</label>
+                        </div>
+                    </div>
+                    @error('allcrew') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                </div>
 
-                        <!-- Dropdown + Tambah Crew (hanya muncul jika pilih manual) -->
-                        <div id="crewSelection" style="{{ old('allcrew') === 'tidak' ? '' : 'display: none;' }}">
-                            <div class="form-group">
-                                <label>Pilih Crew</label>
-                                <div class="input-group mb-2">
-                                    <select class="form-control" id="crewSelect">
-                                        <option value="">-- Pilih Crew --</option>
-                                        @foreach($crewUsers as $id => $name)
-                                            <option value="{{ $id }}">{{ $name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" id="addCrewBtn">
-                                            <i class="fas fa-plus"></i> Tambah
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Daftar Crew Terpilih -->
-                            <div id="selectedCrewList" class="mt-2">
-                                @if(old('crew_ids'))
-                                    @foreach(old('crew_ids') as $userId)
-                                        @if(isset($crewUsers[$userId]))
-                                            <span class="badge bg-info mr-1 mb-1 p-2">
-                                                {{ $crewUsers[$userId] }}
-                                                <input type="hidden" name="crew_ids[]" value="{{ $userId }}">
-                                                <a href="#" class="text-white ml-1 remove-crew">×</a>
-                                            </span>
-                                        @endif
+                <!-- Dropdown + Tambah Crew (4+2 di laptop, 10+12 di HP) -->
+                <div id="crewSelection" style="{{ old('allcrew') === 'tidak' ? '' : 'display: none;' }}">
+                    <div class="form-group">
+                        <label>Pilihan Crew</label>
+                        <div class="row align-items-center">
+                            <div class="col-10 col-md-4">
+                                <select class="form-control" id="crewSelect">
+                                    <option value="">-- Pilih Crew --</option>
+                                    @foreach($crewUsers as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
                                     @endforeach
-                                @endif
+                                </select>
                             </div>
-                            @error('crew_ids') <div class="text-danger small">{{ $message }}</div> @enderror
+                            <div class="col-12 col-md-2 mt-2 mt-md-0">
+                                <button type="button" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center" id="addCrewBtn">
+                                    <i class="fas fa-plus"></i> Tambah
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Simpan Task
-                        </button>
-                        <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Kembali
-                        </a>
+                    <!-- Daftar Crew Terpilih -->
+                    <div id="selectedCrewList" class="mt-2">
+                        @if(old('crew_ids'))
+                            @foreach(old('crew_ids') as $userId)
+                                @if(isset($crewUsers[$userId]))
+                                    <span class="badge bg-info mr-1 mb-1 p-2">
+                                        {{ $crewUsers[$userId] }}
+                                        <input type="hidden" name="crew_ids[]" value="{{ $userId }}">
+                                        <a href="#" class="text-white ml-1 remove-crew">x</a>
+                                    </span>
+                                @endif
+                            @endforeach
+                        @endif
                     </div>
-                </form>
+                    @error('crew_ids') <div class="text-danger small">{{ $message }}</div> @enderror
+                </div>
             </div>
-        </div>
+
+            <div class="card-footer" style="background-color: #ffffff;">
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="fas fa-save"></i> Simpan Task
+                </button>
+                <a href="{{ route('task.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -168,7 +169,7 @@
             badge.innerHTML = `
                 ${userName}
                 <input type="hidden" name="crew_ids[]" value="${userId}">
-                <a href="#" class="text-white ml-1 remove-crew">×</a>
+                <a href="#" class="text-white ml-1 remove-crew">x</a>
             `;
             selectedCrewList.appendChild(badge);
 

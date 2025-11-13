@@ -3,16 +3,11 @@
 @section('title', 'Edit Task - Kapal App')
 
 @section('content')
-<div class="container-fluid mt-3">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-edit mr-1"></i> Edit Task: {{ $task->judul }}
-                    </h3>
-                </div>
-
+<div class="container mt-2">
+    <div class="card card-primary">
+        <div class="card-header" style="background-color: #0074CC;">
+            <h3 class="card-title"><i class="fas fa-tasks mr-2"></i>Form Edit Task</h3>
+        </div>
                 <form action="{{ route('task.update', $task) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -42,41 +37,53 @@
 
                         <!-- Deskripsi -->
                         <div class="form-group">
-                            <label>Deskripsi</label>
+                            <label>Deskripsi Task</label>
                             <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi', $task->deskripsi) }}</textarea>
                         </div>
 
-                       <!-- Tanggal Mulai -->
-<div class="form-group">
-    <label>Tanggal Mulai <span class="text-danger">*</span></label>
-    <input type="datetime-local" name="tanggal_mulai" class="form-control @error('tanggal_mulai') is-invalid @enderror"
-           value="{{ old('tanggal_mulai', $task->tanggal_mulai ? \Carbon\Carbon::parse($task->tanggal_mulai)->format('Y-m-d\TH:i') : '') }}" required>
-    @error('tanggal_mulai') <div class="invalid-feedback">{{ $message }}</div> @enderror
-</div>
+                        <!-- 4 Tanggal: 6+6 di laptop, 12+12 di HP -->
+                        <div class="row">
+                            <!-- Tanggal Mulai -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Tanggal Mulai <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="tanggal_mulai" class="form-control @error('tanggal_mulai') is-invalid @enderror"
+                                           value="{{ old('tanggal_mulai', $task->tanggal_mulai ? \Carbon\Carbon::parse($task->tanggal_mulai)->format('Y-m-d\TH:i') : '') }}" required>
+                                    @error('tanggal_mulai') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
 
-<!-- Deadline -->
-<div class="form-group">
-    <label>Deadline</label>
-    <input type="datetime-local" name="deadline" class="form-control @error('deadline') is-invalid @enderror"
-           value="{{ old('deadline', $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('Y-m-d\TH:i') : '') }}">
-    @error('deadline') <div class="invalid-feedback">{{ $message }}</div> @enderror
-</div>
+                            <!-- Deadline -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Deadline</label>
+                                    <input type="datetime-local" name="deadline" class="form-control @error('deadline') is-invalid @enderror"
+                                           value="{{ old('deadline', $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('Y-m-d\TH:i') : '') }}">
+                                    @error('deadline') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
 
-<!-- Tanggal Dikerjakan -->
-<div class="form-group">
-    <label>Tanggal Dikerjakan</label>
-    <input type="datetime-local" name="tanggal_dikerjakan" class="form-control @error('tanggal_dikerjakan') is-invalid @enderror"
-           value="{{ old('tanggal_dikerjakan', $task->tanggal_dikerjakan ? \Carbon\Carbon::parse($task->tanggal_dikerjakan)->format('Y-m-d\TH:i') : '') }}">
-    @error('tanggal_dikerjakan') <div class="invalid-feedback">{{ $message }}</div> @enderror
-</div>
+                            <!-- Tanggal Dikerjakan -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Tanggal Pengerjaan</label>
+                                    <input type="datetime-local" name="tanggal_dikerjakan" class="form-control @error('tanggal_dikerjakan') is-invalid @enderror"
+                                           value="{{ old('tanggal_dikerjakan', $task->tanggal_dikerjakan ? \Carbon\Carbon::parse($task->tanggal_dikerjakan)->format('Y-m-d\TH:i') : '') }}">
+                                    @error('tanggal_dikerjakan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
 
-<!-- Tanggal Selesai -->
-<div class="form-group">
-    <label>Tanggal Selesai</label>
-    <input type="datetime-local" name="tanggal_selesai" class="form-control @error('tanggal_selesai') is-invalid @enderror"
-           value="{{ old('tanggal_selesai', $task->tanggal_selesai ? \Carbon\Carbon::parse($task->tanggal_selesai)->format('Y-m-d\TH:i') : '') }}">
-    @error('tanggal_selesai') <div class="invalid-feedback">{{ $message }}</div> @enderror
-</div>
+                            <!-- Tanggal Selesai -->
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Tanggal Selesai</label>
+                                    <input type="datetime-local" name="tanggal_selesai" class="form-control @error('tanggal_selesai') is-invalid @enderror"
+                                           value="{{ old('tanggal_selesai', $task->tanggal_selesai ? \Carbon\Carbon::parse($task->tanggal_selesai)->format('Y-m-d\TH:i') : '') }}">
+                                    @error('tanggal_selesai') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Status -->
                         <div class="form-group">
                             <label>Status <span class="text-danger">*</span></label>
@@ -105,21 +112,23 @@
                             </div>
                         </div>
 
-                        <!-- Dropdown + Tambah Crew -->
+                        <!-- Dropdown + Tambah Crew (4+2 di laptop, 10+12 di HP) -->
                         <div id="crewSelection" style="{{ old('allcrew', $task->allcrew) === 'tidak' ? '' : 'display: none;' }}">
                             <div class="form-group">
                                 <label>Pilih Crew</label>
-                                <div class="input-group mb-2">
-                                    <select class="form-control" id="crewSelect">
-                                        <option value="">-- Pilih Crew --</option>
-                                        @foreach($crewUsers as $id => $name)
-                                            <option value="{{ $id }}" {{ in_array($id, $selectedCrew) ? 'disabled' : '' }}>
-                                                {{ $name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-primary" id="addCrewBtn">
+                                <div class="row align-items-center">
+                                    <div class="col-10 col-md-4">
+                                        <select class="form-control" id="crewSelect">
+                                            <option value="">-- Pilih Crew --</option>
+                                            @foreach($crewUsers as $id => $name)
+                                                <option value="{{ $id }}" {{ in_array($id, $selectedCrew) ? 'disabled' : '' }}>
+                                                    {{ $name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-2 mt-2 mt-md-0">
+                                        <button type="button" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center" id="addCrewBtn">
                                             <i class="fas fa-plus"></i> Tambah
                                         </button>
                                     </div>
@@ -142,17 +151,16 @@
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Update Task
+                    <div class="card-footer" style="background-color: #ffffff;">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-save"></i> Simpan
                         </button>
-                        <a href="{{ route('task.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('task.index') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                     </div>
                 </form>
-            </div>
-        </div>
+          
     </div>
 </div>
 @endsection

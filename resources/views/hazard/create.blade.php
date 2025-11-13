@@ -1,18 +1,13 @@
 @extends('master')
 
-@section('title', 'Lapor Hazard - Kapal App')
+@section('title', 'Tambah Hazard')
 
 @section('content')
-<div class="container-fluid mt-3">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-exclamation-triangle mr-1" style="color:#e74c3c;"></i>
-                        Lapor Hazard
-                    </h3>
-                </div>
+<div class="container mt-2">
+    <div class="card card-primary">
+        <div class="card-header" style="background-color: #0074CC;">
+            <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Form Tambah Hazard</h3>
+        </div>
 
                 <form action="{{ route('hazard.store') }}" method="POST">
                     @csrf
@@ -53,17 +48,16 @@
                         </div>
                     </div>
 
-                    <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-paper-plane"></i> Kirim Laporan
+                    <div class="card-footer" style="background-color: #ffffff;">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-save"></i> Simpan
                         </button>
-                        <a href="{{ url()->previous() }}" class="btn btn-secondary">
+                         <a href="{{ route('hazard.my') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                     </div>
                 </form>
-            </div>
-        </div>
+          
     </div>
 </div>
 @endsection
