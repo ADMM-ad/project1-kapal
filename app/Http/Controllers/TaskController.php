@@ -38,7 +38,7 @@ public function index(Request $request)
         }
     }
 
-    $tasks = $query->latest()->paginate(500)->appends($request->query());
+    $tasks = $query->latest('tanggal_mulai')->paginate(500)->appends($request->query());
 
     return view('task.index', compact('tasks'));
 }

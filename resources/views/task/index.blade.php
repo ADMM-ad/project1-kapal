@@ -108,6 +108,8 @@
                                     <th>Deskripsi</th>
                                     <th>Mulai</th>
                                     <th>Deadline</th>
+                                    <th>Tanggal Dikerjakan</th>
+                                    <th>Tanggal Selesai</th>
                                     <th>Status</th>
                                     <th>Crew</th>
                                     <th width="12%">Aksi</th>
@@ -130,6 +132,20 @@
                                         <td>
                                             @if($task->deadline)
                                                 {{ \Carbon\Carbon::parse($task->deadline)->format('d M Y H:i') }}</>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                         <td>
+                                            @if($task->tanggal_dikerjakan)
+                                                {{ \Carbon\Carbon::parse($task->tanggal_dikerjakan)->format('d M Y H:i') }}
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($task->tanggal_selesai)
+                                                {{ \Carbon\Carbon::parse($task->tanggal_selesai)->format('d M Y H:i') }}
                                             @else
                                                 <span class="text-muted">—</span>
                                             @endif

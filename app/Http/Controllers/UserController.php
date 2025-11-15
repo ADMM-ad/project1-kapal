@@ -81,7 +81,7 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()
-            ->route('user.create')
+            ->route('user.index')
             ->with('success', 'User berhasil dihapus.');
     }
 
